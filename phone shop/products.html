@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <title>Apple Store Lite · Products</title>
+  <style>
+    :root {
+      --bg: #f9f9f9; --white: #ffffff; --black: #1d1d1f;
+      --gray-dark: #4a4a4e; --gray-mid: #86868b; --gray-light: #d2d2d7;
+      --gray-border: #e5e5e7; --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+      --shadow-lg: 0 12px 32px rgba(0,0,0,0.08); --radius-lg: 24px;
+      --transition: 0.25s cubic-bezier(0.25,0.1,0.25,1);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--black);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--gray-border);
+      padding: 0 20px;
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+    }
+    .logo { font-size: 1.4rem; font-weight: 650; color: var(--black); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .logo svg { width: 24px; height: 24px; fill: var(--black); }
+    .nav-links { display: flex; gap: 32px; list-style: none; font-size: 0.9rem; font-weight: 500; }
+    .nav-links a { text-decoration: none; color: var(--black); transition: opacity 0.2s; }
+    .nav-links a:hover { opacity: 0.7; }
+    .section-container { max-width: 1200px; margin: 0 auto; padding: 48px 24px; }
+    .section-title { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 24px; }
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+    .product-card {
+      background: var(--white); border-radius: var(--radius-lg); padding: 24px 16px 20px;
+      text-align: center; transition: all var(--transition); position: relative;
+      box-shadow: var(--shadow-sm); display: flex; flex-direction: column; align-items: center;
+      border: 1px solid rgba(0,0,0,0.04); text-decoration: none; color: inherit; cursor: pointer;
+    }
+    .product-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+    .product-image { width: 100%; max-width: 120px; height: auto; max-height: 160px; object-fit: contain; margin-bottom: 16px; filter: drop-shadow(0 8px 14px rgba(0,0,0,0.1)); }
+    .product-card h4 { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
+    .product-card .variant { font-size: 0.8rem; color: var(--gray-mid); margin-bottom: 8px; }
+    .product-card .price-tag { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; }
+    .btn-detail {
+      width: 100%; padding: 12px; border-radius: 25px; border: 1px solid var(--black);
+      background: var(--black); color: #fff; font-weight: 500; font-size: 0.9rem;
+      transition: background 0.25s; text-align: center; margin-top: auto;
+    }
+    .btn-detail:hover { background: #333; }
+    /* modal */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0s 0.3s;
+    }
+    .modal-overlay:target { opacity: 1; visibility: visible; transition: opacity 0.3s, visibility 0s 0s; }
+    .modal {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      max-width: 800px;
+      width: 90%;
+      max-height: 90dvh;          
+      height: auto;              
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-wrap: wrap;
+      position: relative;
+      padding: 32px;
+}
+    .modal-close {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 20;
+  background: var(--white);
+  font-size: 2rem;
+  text-decoration: none;
+  color: var(--gray-dark);
+  font-weight: 300;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  border-radius: 50%;
+}
+.modal-close:hover {
+  color: var(--black);
+  background: #f0f0f0;
+}
+.modal-overlay {
+  position: fixed;             /* it already is fixed, but ensure position context */
+  /* … other properties … */
+  justify-content: center;     /* keep centering */
+  align-items: center;
+}
+    .modal-close:hover { color: var(--black); }
+    .modal-image { flex: 1 1 250px; text-align: center; padding: 20px; min-height: 0;}
+    .modal-image img { max-width: 100%; max-height: 250px; object-fit: contain; filter: drop-shadow(0 12px 20px rgba(0,0,0,0.15)); }
+    .modal-details { flex: 1 1 300px; padding: 20px; display: flex; flex-direction: column; justify-content: center; min-height: 0;}
+    .modal-details h3 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+    .modal-details .tagline { font-size: 1rem; color: var(--gray-dark); margin-bottom: 16px; }
+    .modal-details .price { font-size: 1.8rem; font-weight: 700; margin-bottom: 20px; }
+    .storage-options { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .storage-btn {
+      padding: 10px 16px;
+      border: 1px solid var(--gray-light);
+      border-radius: 20px;
+      background: var(--white);
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: all 0.25s;               
+      cursor: default;
+    }
+    .storage-btn:hover {
+      background: var(--black);
+      color: #fff;
+      border-color: var(--black);
+      transform: translateY(-1px);          
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .modal-cta {
+      background: var(--black);
+      color: #fff;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 30px;
+      font-weight: 500;
+      font-size: 1rem;
+      display: inline-block;
+      width: fit-content;
+      transition: background 0.3s, transform 0.2s;
+      cursor: default;
+    }
+    .modal-cta:hover {
+      background: #333;
+      transform: translateY(-2px);
+    }
+    footer {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px;
+      text-align: center;
+      border-top: 1px solid var(--gray-border);
+      color: var(--gray-mid);
+      font-size: 0.85rem;
+    }
+    @media (max-width: 768px) { .products-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); } .modal { flex-direction: column; } .modal-image {flex: none; width: 100%;} .modal-details {flex: none; width: 100%} }
+    @media (max-width: 480px) { .nav-links { gap: 16px; font-size: 0.8rem; } .products-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <svg viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        Apple Store Lite
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+      
+    </div>
+  </header>
+
+  <!-- iPhone Section -->
+  <section class="section-container" id="iphone">
+    <h2 class="section-title">iPhone</h2>
+    <div class="products-grid">
+      <a href="#detail-iphone1" class="product-card">
+        <img src="productiphone/iphone17promax.png" alt="iPhone 17 Pro Max" class="product-image">
+        <h4>iPhone 17 Pro Max</h4>
+        <p class="variant">6.9"</p>
+        <p class="price-tag">$1,199</p>
+        <span class="btn-detail">View Details</span>
+      </a>
+
+      <a href="#detail-iphone2" class="product-card">
+        <img src="productiphone/iphone17pro.png" alt="iPhone 17 Pro" class="product-image">
+        <h4>iPhone 17 Pro</h4>
+        <p class="variant">6.3"</p>
+        <p class="price-tag">$1099</p>
+        <span class="btn-detail">View Details</span>
+      </a>
+
+      <a href="#detail-iphone3" class="product-card">
+        <img src="productiphone/iphone17.png" alt="iPhone 17" class="product-image">
+        <h4>iPhone 17</h4>
+        <p class="variant">6.3"</p>
+        <p class="price-tag">$799</p>
+        <span class="btn-detail">View Details</span>
+      </a>
+
+      <a href="#detail-iphone4" class="product-card">
+        <img src="productiphone/iphone17e.png" alt="iPhone 17e" class="product-image">
+        <h4>iPhone 17e</h4>
+        <p class="variant">6.1"</p>
+        <p class="price-tag">$599</p>
+        <span class="btn-detail">View Details</span>
+      </a>
+
+      <a href="#detail-iphone5" class="product-card">
+        <img src="productiphone/iphoneair.png" alt="iPhone Air" class="product-image">
+        <h4>iPhone Air</h4>
+        <p class="variant">6.5"</p>
+        <p class="price-tag">$999</p>
+        <span class="btn-detail">View Details</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Mac Section -->
+  <section class="section-container" id="mac">
+    <h2 class="section-title">Mac</h2>
+    <div class="products-grid">
+      <a href="#detail-mac1" class="product-card">
+        <img src="productmac/macbookneo.png" alt="MacBook Neo" class="product-image">
+        <h4>MacBook Neo</h4>
+        <p class="variant">13"</p>
+        <p class="price-tag">$599</p>
+        <span class="btn-detail">View Details</span>
+      </a>
+
+      <a href="#detail-mac2" class="product-card">
+        <img src="productmac/macbookair.png" alt="MacBook Air" class="product-image">
+        <h4>MacBook Air</h4>
+        <p class="variant">15", 13"</p>
+        <p class="price-tag">$1,099</p>
+        <span class="btn-detail">View Details</span>
+      </a>
+
+      <a href="#detail-mac3" class="product-card">
+        <img src="productmac/macbookpro.png" alt="MacBook Pro" class="product-image">
+        <h4>MacBook Pro</h4>
+        <p class="variant">14", 16"</p>
+        <p class="price-tag">$1,699</p>
+        <span class="btn-detail">View Details</span>
+      </a>
+
+      <a href="#detail-mac4" class="product-card">
+        <img src="productmac/imac.png" alt="iMac" class="product-image">
+        <h4>iMac</h4>
+        <p class="variant">24"</p>
+        <p class="price-tag">$1,299</p>
+        <span class="btn-detail">View Details</span>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- iPad Section -->
+  <section class="section-container" id="ipad">
+    <h2 class="section-title">iPad</h2>
+    <div class="products-grid">
+      <a href="#detail-ipad1" class="product-card">
+        <img src="productipad/ipadpro.png" alt="iPad Pro" class="product-image">
+        <h4>iPad Pro</h4>
+        <p class="variant">11" or 13"</p>
+        <p class="price-tag">$999</p>
+        <span class="btn-detail">View Details</span>
+      </a>
+
+      <a href="#detail-ipad2" class="product-card">
+        <img src="productipad/ipadair.png" alt="iPad Air" class="product-image">
+        <h4>iPad Air</h4>
+        <p class="variant">11" or 13"</p>
+        <p class="price-tag">$599</p>
+        <span class="btn-detail">View Details</span>
+      </a>
+
+      <a href="#detail-ipad3" class="product-card">
+        <img src="productipad/ipad.png" alt="iPad" class="product-image">
+        <h4>iPad</h4>
+        <p class="variant">11"</p>
+        <p class="price-tag">$349</p>
+        <span class="btn-detail">View Details</span>
+      </a>
+
+      <a href="#detail-ipad4" class="product-card">
+        <img src="productipad/ipadmini.png" alt="iPad mini" class="product-image">
+        <h4>iPad mini</h4>
+        <p class="variant">8.3"</p>
+        <p class="price-tag">$499</p>
+        <span class="btn-detail">View Details</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Watch Section -->
+  <section class="section-container" id="watch">
+    <h2 class="section-title">Watch</h2>
+    <div class="products-grid">
+      <a href="#detail-watch1" class="product-card">
+        <img src="productiwatch/iwatch11.png" alt="iwatch11" class="product-image">
+        <h4>Apple Watch Series 11</h4>
+        <p class="variant">43mm, 26mm · Titanium, Aluminum</p>
+        <p class="price-tag">$399</p>
+        <span class="btn-detail">View Details</span>
+      </a>
+
+      <a href="#detail-watch2" class="product-card">
+        <img src="productiwatch/iwatchse3.png" alt="iwatchse3" class="product-image">
+        <h4>Apple Watch SE 3</h4>
+        <p class="variant">40mm. 44mm · Aluminum</p>
+        <p class="price-tag">$249</p>
+        <span class="btn-detail">View Details</span>
+      </a>
+
+      <a href="#detail-watch3" class="product-card">
+        <img src="productiwatch/iwatchultra3.png" alt="iwatchultra3" class="product-image">
+        <h4>Apple Watch Ultra 3</h4>
+        <p class="variant">49mm · Titanium</p>
+        <p class="price-tag">$799</p>
+        <span class="btn-detail">View Details</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="section-container" id="airpods">
+    <h2 class="section-title">Airpods</h2>
+    <div class="products-grid">
+      <a href="#detail-airpods1" class="product-card">
+        <img src="productairpods/airpods4.png" alt="airpods4" class="product-image">
+        <h4>Airpods 4</h4>
+        <p class="variant"></p>
+        <p class="price-tag">$129</p>
+        <span class="btn-detail">View Details</span>
+      </a>
+
+      <a href="#detail-airpods2" class="product-card">
+        <img src="productairpods/airpods4ANC.png" alt="airpods4anc" class="product-image">
+        <h4>Airpods 4 </h4>
+        <p class="variant">Active Noise Cancellation</p>
+        <p class="price-tag">$179</p>
+        <span class="btn-detail">View Details</span>
+      </a>
+
+      <a href="#detail-airpods3" class="product-card">
+        <img src="productairpods/airpodspro3.png" alt="airpodspro3" class="product-image">
+        <h4>Airpods Pro 3</h4>
+        <p class="variant">Active Noise Cancellation</p>
+        <p class="price-tag">$249</p>
+        <span class="btn-detail">View Details</span>
+      </a>
+
+      <a href="#detail-airpods4" class="product-card">
+        <img src="productairpods/airpodsmax2.png" alt="airpodsmax2" class="product-image">
+        <h4>Airpods Max 2</h4>
+        <p class="variant">Active Noise Cancellation</p>
+        <p class="price-tag">$549</p>
+        <span class="btn-detail">View Details</span>
+      </a>
+   </section>
+
+
+  <!-- MODALS (partial, include all needed) -->
+  <div class="modal-overlay" id="detail-iphone1">
+    <div class="modal">
+      <a href="#close" class="modal-close">&times;</a>
+      <div class="modal-image">
+        <img src="productiphone/iphone17promax.png" alt="iPhone 17 Pro Max">
+      </div>
+      <div class="modal-details">
+        <h3>iPhone 17 Pro Max</h3>
+        <p class="tagline">The ultimate iPhone.</p>
+        <p class="price">From $1,199</p>
+        <div class="storage-options">
+          <span class="storage-btn">256GB</span>
+          <span class="storage-btn">512GB</span>
+          <span class="storage-btn">1TB</span>
+          <span class="storage-btn">2TB</span>
+        </div>
+        <span class="modal-cta">Add to Bag</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="detail-iphone2">
+    <div class="modal">
+      <a href="#close" class="modal-close">&times;</a>
+      <div class="modal-image">
+        <img src="productiphone/iphone17pro.png" alt="iPhone 17 Pro">
+      </div>
+      <div class="modal-details">
+        <h3>iPhone 17 Pro</h3>
+        <p class="tagline">Pro performance.</p>
+        <p class="price">From $999</p>
+        <div class="storage-options">
+          <span class="storage-btn">128GB</span>
+          <span class="storage-btn">256GB</span>
+          <span class="storage-btn">1TB</span>
+          <span class="storage-btn">2TB</span>
+        </div><span class="modal-cta">Add to Bag</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="detail-iphone3">
+    <div class="modal">
+      <a href="#close" class="modal-close">&times;</a>
+      <div class="modal-image">
+        <img src="productiphone/iphone17.png" alt="iPhone 17">
+      </div>
+      <div class="modal-details">
+        <h3>iPhone 17</h3>
+        <p class="tagline">Magichromatic</p>
+        <p class="price">From $799</p>
+        <div class="storage-options">
+          <span class="storage-btn">256GB</span>
+          <span class="storage-btn">512GB</span>
+        </div>
+        <span class="modal-cta">Add to Bag</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="detail-iphone4">
+    <div class="modal">
+      <a href="#close" class="modal-close">&times;</a>
+      <div class="modal-image">
+        <img src="productiphone/iphone17e.png" alt="iPhone 17e">
+      </div>
+      <div class="modal-details">
+        <h3>iPhone 17e</h3>
+        <p class="tagline">Feature stacked <br> Value packed</p>
+        <p class="price">From $599</p>
+        <div class="storage-options">
+          <span class="storage-btn">256GB</span>
+          <span class="storage-btn">512GB</span>
+        </div>
+        <span class="modal-cta">Add to Bag</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="detail-iphone5">
+    <div class="modal">
+      <a href="#close" class="modal-close">&times;</a>
+      <div class="modal-image">
+        <img src="productiphone/iphoneair.png" alt="iPhone Air">
+      </div>
+      <div class="modal-details">
+        <h3>iPhone Air</h3>
+        <p class="tagline">The thinnest iPhone ever. <br> With the power of pro inside.</p>
+        <p class="price">From $999</p>
+        <div class="storage-options">
+          <span class="storage-btn">256GB</span>
+          <span class="storage-btn">512GB</span>
+          <span class="storage-btn">1TB</span>
+        </div>
+        <span class="modal-cta">Add to Bag</span>
+      </div>
+    </div>
+  </div>
+
+<!-- Mac Section -->
+
+  <div class="modal-overlay" id="detail-mac1">
+    <div class="modal">
+      <a href="#close" class="modal-close">&times;</a>
+      <div class="modal-image">
+        <img src="productmac/macbookneo.png" alt="MacBook Neo">
+      </div>
+      <div class="modal-details">
+        <h3>MacBook Neo</h3>
+        <p class="tagline">Hello, Neo.</p>
+        <p class="price">$599</p>
+        <div class="storage-options">
+          <span class="storage-btn">256GB</span>
+          <span class="storage-btn">512GB</span>
+        </div><span class="modal-cta">Add to Bag</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="detail-mac2">
+    <div class="modal">
+      <a href="#close" class="modal-close">&times;</a>
+      <div class="modal-image">
+        <img src="productmac/macbookair.png" alt="MacBook Air">
+      </div>
+      <div class="modal-details">
+        <h3>MacBook Air</h3>
+        <p class="tagline">Might takes flight. <br> Now supercharged by M5</p>
+        <p class="price">$1,099</p>
+        <div class="storage-options">
+          <span class="storage-btn">512GB</span>
+          <span class="storage-btn">1TB</span>
+          <span class="storage-btn">2TB</span>
+          <span class="storage-btn">4TB</span>
+        </div><span class="modal-cta">Add to Bag</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="detail-mac3">
+    <div class="modal">
+      <a href="#close" class="modal-close">&times;</a>
+      <div class="modal-image">
+        <img src="productmac/macbookpro.png" alt="MacBook Air">
+      </div>
+      <div class="modal-details">
+        <h3>MacBook Pro</h3>
+        <p class="tagline">Fast runs in the family. <br> Now with M5, M5 Pro, and M5 Max.</p>
+        <p class="price">$1,699</p>
+        <div class="storage-options">
+          <span class="storage-btn">1TB</span>
+          <span class="storage-btn">2TB</span>
+          <span class="storage-btn">4TB</span>
+          <span class="storage-btn">8TB</span>
+        </div><span class="modal-cta">Add to Bag</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="detail-mac4">
+    <div class="modal">
+      <a href="#close" class="modal-close">&times;</a>
+      <div class="modal-image">
+        <img src="productmac/imac.png" alt="MacBook Air">
+      </div>
+      <div class="modal-details">
+        <h3>iMac</h3>
+        <p class="tagline">Built for Apple Intelligence.</p>
+        <p class="price">$1,299</p>
+        <div class="storage-options">
+          <span class="storage-btn">256GB</span>
+          <span class="storage-btn">512GB</span>
+          <span class="storage-btn">1TB</span>
+          <span class="storage-btn">2TB</span>
+        </div><span class="modal-cta">Add to Bag</span>
+      </div>
+    </div>
+  </div>
+
+<!-- ipad Section -->
+
+  <div class="modal-overlay" id="detail-ipad1">
+    <div class="modal">
+      <a href="#close" class="modal-close">&times;</a>
+      <div class="modal-image">
+        <img src="productipad/ipadpro.png" alt="iPad Pro">
+      </div>
+      <div class="modal-details">
+        <h3>iPad Pro</h3>
+        <p class="tagline">Mmmmm. Power. <br> Now supercharged with M5</p>
+        <p class="price">$999</p>
+        <div class="storage-options">
+          <span class="storage-btn">128GB</span>
+          <span class="storage-btn">512GB</span>
+          <span class="storage-btn">1TB</span>
+          <span class="storage-btn">2TB</span>
+        </div><span class="modal-cta">Add to Bag</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="detail-ipad2">
+    <div class="modal">
+      <a href="#close" class="modal-close">&times;</a>
+      <div class="modal-image">
+        <img src="productipad/ipadair.png" alt="iPad Air">
+      </div>
+      <div class="modal-details">
+        <h3>iPad Air</h3>
+        <p class="tagline">Whoosh. <br> Now supercharged by M4</p>
+        <p class="price">$599</p>
+        <div class="storage-options">
+          <span class="storage-btn">128GB</span>
+          <span class="storage-btn">256GB</span>
+          <span class="storage-btn">512GB</span>
+          <span class="storage-btn">1TB</span>
+        </div><span class="modal-cta">Add to Bag</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="detail-ipad3">
+    <div class="modal">
+      <a href="#close" class="modal-close">&times;</a>
+      <div class="modal-image">
+        <img src="productipad/ipad.png" alt="iPad">
+      </div>
+      <div class="modal-details">
+        <h3>iPad</h3>
+        <p class="tagline">Lovable. Drawable. Magical.</p>
+        <p class="price">$349</p>
+        <div class="storage-options">
+          <span class="storage-btn">128GB</span>
+          <span class="storage-btn">256GB</span>
+          <span class="storage-btn">512GB</span>
+        </div><span class="modal-cta">Add to Bag</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="detail-ipad4">
+    <div class="modal">
+      <a href="#close" class="modal-close">&times;</a>
+      <div class="modal-image">
+        <img src="productipad/ipadmini.png" alt="iPad mini">
+      </div>
+      <div class="modal-details">
+        <h3>iPad mini</h3>
+        <p class="tagline">Built for Apple Intelligence</p>
+        <p class="price">$499</p>
+        <div class="storage-options">
+          <span class="storage-btn">128GB</span>
+          <span class="storage-btn">256GB</span>
+          <span class="storage-btn">512GB</span>
+        </div><span class="modal-cta">Add to Bag</span>
+      </div>
+    </div>
+  </div>
+
+<!-- iwatch Section -->
+
+  <div class="modal-overlay" id="detail-watch1">
+    <div class="modal">
+      <a href="#close" class="modal-close">&times;</a>
+      <div class="modal-image">
+        <img src="productiwatch/iwatch11.png" alt="iwatch11">
+      </div>
+      <div class="modal-details">
+        <h3>Apple Watch Series 11</h3>
+        <p class="tagline">The ultimate way to watch your health.</p>
+        <p class="price">$399</p>
+        <span class="modal-cta">Add to Bag</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="detail-watch2">
+    <div class="modal">
+      <a href="#close" class="modal-close">&times;</a>
+      <div class="modal-image">
+        <img src="productiwatch/iwatchse3.png" alt="iwatchse3">
+      </div>
+      <div class="modal-details">
+        <h3>Apple Watch SE 3</h3>
+        <p class="tagline">Walk it. Talk it. Track it. Love it.<br>Essential health features at a great value.</p>
+        <p class="price">$249</p>
+        <span class="modal-cta">Add to Bag</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="detail-watch3">
+    <div class="modal">
+      <a href="#close" class="modal-close">&times;</a>
+      <div class="modal-image">
+        <img src="productiwatch/iwatchultra3.png" alt="iwatchultra3">
+      </div>
+      <div class="modal-details">
+        <h3>Apple Watch Ultra 3</h3>
+        <p class="tagline">Personal beast.<br>The ultimate sports and adventure watch.</p>
+        <p class="price">$799</p>
+        <span class="modal-cta">Add to Bag</span>
+      </div>
+    </div>
+  </div>
+
+<!-- airpods Section -->
+
+  <div class="modal-overlay" id="detail-airpods1">
+    <div class="modal">
+      <a href="#close" class="modal-close">&times;</a>
+      <div class="modal-image">
+        <img src="productairpods/airpods4.png" alt="airpods4">
+      </div>
+      <div class="modal-details">
+        <h3>Airpods 4</h3>
+        <p class="tagline">Iconic. Now supersonic.</p>
+        <p class="price">$129</p>
+        <span class="modal-cta">Add to Bag</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="detail-airpods2">
+    <div class="modal">
+      <a href="#close" class="modal-close">&times;</a>
+      <div class="modal-image">
+        <img src="productairpods/airpods4ANC.png" alt="airpods4anc">
+      </div>
+      <div class="modal-details">
+        <h3>Airpods 4</h3>
+        <p class="tagline">Iconic. Now supersonic. <br>Active Noise Cancellation</p>
+        <p class="price">$179</p>
+        <span class="modal-cta">Add to Bag</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="detail-airpods3">
+    <div class="modal">
+      <a href="#close" class="modal-close">&times;</a>
+      <div class="modal-image">
+        <img src="productairpods/airpods4ANC.png" alt="airpodspro3">
+      </div>
+      <div class="modal-details">
+        <h3>Airpods Pro 3</h3>
+        <p class="tagline">The world's best in-ear Active Noise Cancellation.</p>
+        <p class="price">$249</p>
+        <span class="modal-cta">Add to Bag</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="detail-airpods4">
+    <div class="modal">
+      <a href="#close" class="modal-close">&times;</a>
+      <div class="modal-image">
+        <img src="productairpods/airpodsmax2.png" alt="airpodsmax2">
+      </div>
+      <div class="modal-details">
+        <h3>Airpods Max 2</h3>
+        <p class="tagline">Listening. Remastered.</p>
+        <p class="price">$549</p>
+        <span class="modal-cta">Add to Bag</span>
+      </div>
+    </div>
+  </div>
+
+<footer>
+    <p>© 2026 Apple Store Lite· All rights reserved.</p>
+  </footer>
+  
+</body>
+</html>
