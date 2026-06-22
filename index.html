@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <title>Apple Store Lite · Home</title>
+  <style>
+    :root {
+      --bg: #f9f9f9;
+      --white: #ffffff;
+      --black: #1d1d1f;
+      --gray-dark: #4a4a4e;
+      --gray-mid: #86868b;
+      --gray-light: #d2d2d7;
+      --gray-border: #e5e5e7;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Oxygen, sans-serif;
+      background: var(--bg);
+      color: var(--black);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--gray-border);
+      padding: 0 20px;
+    }
+    .header-inner {
+      max-width: 1200px; margin: 0 auto; display: flex;
+      align-items: center; justify-content: space-between; height: 56px;
+    }
+    .logo {
+      font-size: 1.4rem; font-weight: 650; letter-spacing: -0.4px;
+      color: var(--black); text-decoration: none;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .logo svg { width: 24px; height: 24px; fill: var(--black); }
+    .nav-links {
+      display: flex; gap: 32px; list-style: none;
+      font-size: 0.9rem; font-weight: 500;
+    }
+    .nav-links a {
+      text-decoration: none; color: var(--black); transition: opacity 0.2s;
+    }
+    .nav-links a:hover { opacity: 0.7; }
+    
+    /* HERO SECTION */
+    .hero {
+      max-width: 1200px; margin: 28px auto; padding: 0 24px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;
+    }
+    .hero-content h2 { font-size: 3.2rem; font-weight: 700; letter-spacing: -1px; line-height: 1.15; margin-bottom: 12px; }
+    .hero-content .tagline { font-size: 1.25rem; color: var(--gray-dark); margin-bottom: 20px; }
+    .hero-content .price { font-size: 1.7rem; font-weight: 600; margin-bottom: 24px; }
+    .btn-primary, .btn-outline {
+      display: inline-block; padding: 14px 28px; border-radius: 30px;
+      font-weight: 500; font-size: 0.95rem; text-decoration: none;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .btn-primary { background: var(--black); color: #fff; border: none; }
+    .btn-primary:hover { background: #333; transform: translateY(-2px); }
+    .btn-outline { background: transparent; color: var(--black); border: 1.5px solid var(--black); }
+    .btn-outline:hover { background: rgba(0,0,0,0.04); }
+    
+    /* PHONE SLIDER (rotating iPhones) */
+    .hero-image {
+      position: relative;
+      width: 100%;
+      max-width: 280px;
+      height: 440px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .phone-slider {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    .hero-phone-img.phone-slide {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      max-width: 280px;
+      height: auto;
+      max-height: 440px;
+      object-fit: contain;
+      filter: drop-shadow(0 20px 30px rgba(0,0,0,0.2));
+      animation: float 6s ease-in-out infinite, phoneFade 12s infinite;
+      opacity: 0;
+    }
+    @keyframes float {
+      0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+      50%      { transform: translate(-50%, -50%) translateY(-12px); }
+    }
+    @keyframes phoneFade {
+      0%   { opacity: 0; }
+      2%   { opacity: 1; }
+      23%  { opacity: 1; }
+      25%  { opacity: 0; }
+      100% { opacity: 0; }
+    }
+    
+    /* INTRO & LINK CARDS */
+    .intro {
+      max-width: 1200px; margin: 60px auto; padding: 0 24px; text-align: center;
+    }
+    .intro h3 { font-size: 2rem; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.5px; }
+    .intro p { font-size: 1.1rem; color: var(--gray-mid); max-width: 700px; margin: 0 auto 30px; }
+    .link-cards {
+      display: flex; gap: 24px; flex-wrap: wrap; justify-content: center;
+    }
+    .link-card {
+      background: var(--white); border-radius: 24px; padding: 30px 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04); text-align: center;
+      text-decoration: none; color: var(--black); transition: transform 0.25s;
+      min-width: 180px;
+    }
+    .link-card:hover { transform: translateY(-5px); box-shadow: 0 12px 28px rgba(0,0,0,0.08); }
+    .link-card .emoji { font-size: 2.5rem; margin-bottom: 12px; }
+    .link-card h4 { font-size: 1.2rem; font-weight: 600; }
+    footer {
+      max-width: 1200px; margin: 0 auto; padding: 32px 24px; text-align: center;
+      border-top: 1px solid var(--gray-border); color: var(--gray-mid); font-size: 0.85rem;
+    }
+    @media (max-width: 768px) {
+      .hero { grid-template-columns: 1fr; text-align: center; }
+      .hero-image { order: -1; height: 330px; max-width: 200px; }
+      .hero-content h2 { font-size: 2.2rem; }
+      .hero-phone-img.phone-slide { max-width: 200px; max-height: 330px; }
+    }
+    @media (max-width: 480px) {
+      .nav-links { gap: 16px; font-size: 0.8rem; }
+      .hero-image { max-width: 160px; height: 280px; }
+      .hero-phone-img.phone-slide { max-width: 160px; max-height: 280px; }
+      .hero-content h2 { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <svg viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        Apple Store Lite
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h2>iPhone 17 series</h2>
+      <p class="tagline">Awe dropping</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <a href="products.html" class="btn-primary">Shop Now</a>
+        <a href="about.html" class="btn-outline">Learn More</a>
+      </div>
+    </div>
+
+    <!-- ROTATING iPHONE SLIDER (5 images, changes every 3s) -->
+    <div class="hero-image">
+      <div class="phone-slider">
+        <!-- Replace each src with your own iPhone image -->
+        <img src="sliderphone/iphone17promax.png" alt="iPhone 1" class="hero-phone-img phone-slide" style="animation-delay: 0s;">
+        <img src="sliderphone/iphone17.png" alt="iPhone 2" class="hero-phone-img phone-slide" style="animation-delay: 3s;">
+        <img src="sliderphone/iphone17e.png" alt="iPhone 3" class="hero-phone-img phone-slide" style="animation-delay: 6s;">
+        <img src="sliderphone/iphoneair.png" alt="iPhone 4" class="hero-phone-img phone-slide" style="animation-delay: 9s;">
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="intro">
+    <h3>Welcome to Apple Store Lite</h3>
+    <p>Discover the latest in technology. We offer the full range of Apple products with a clean, modern shopping experience.</p>
+    <div class="link-cards">
+      <a href="products.html" class="link-card">
+        <h4>Products</h4>
+      </a>
+      <a href="about.html" class="link-card">
+        <h4>About Us</h4>
+      </a>
+      <a href="contact.html" class="link-card">
+        <h4>Contact</h4>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2026 Apple Store Lite· All rights reserved.</p>
+  </footer>
+</body>
+</html>
